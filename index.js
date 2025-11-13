@@ -60,13 +60,9 @@ async function run() {
       }
     });
 
-
-
-
-  
     app.put("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
-      const updateData = req.body; 
+      const updateData = req.body;
       const result = await BookCollection.updateOne(
         { _id: new ObjectId(id) },
         { $set: updateData }
@@ -74,39 +70,50 @@ async function run() {
       res.send({ success: result.modifiedCount > 0 });
     });
 
-
-
-   
-app.get("/Book-data/:id", async (req, res) => {
-  const id = req.params.id;
-  const result = await BookCollection.findOne({ _id: new ObjectId(id) });
-  res.send(result);
-});
-
-
-app.delete("/Book-data/:id", async (req, res) => {
-  const id = req.params.id;
-
-  try {
-    const result = await BookCollection.deleteOne({ _id: new ObjectId(id) });
-
-    if (result.deletedCount > 0) {
-      res.send({ success: true, message: "Book deleted successfully" });
-    } 
-  } catch (error) {
-    console.error(error);
-    res.send({
-      success: false,
+    app.get("/Book-data/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await BookCollection.findOne({ _id: new ObjectId(id) });
+      res.send(result);
     });
-  }
-});
+
+    app.delete("/Book-data/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const result = await BookCollection.deleteOne({
+          _id: new ObjectId(id),
+        });
+
+        if (result.deletedCount > 0) {
+          res.send({ success: true, message: "Book deleted successfully" });
+        }
+      } catch (error) {
+        console.error(error);
+        res.send({
+          success: false,
+        });
+      }
+    });
 
 
 
 
+    
+    app.get("/Book-data/latest", async (req, res) => {
+      try {
+        const latestBooks = await BookCollection.find()
+          .sort({ _id: -1 }) // _id in descending order => latest first
+          .limit(6) // only 6 documents
+          .toArray();
 
-
-
+        res.send(latestBooks);
+      } catch (error) {
+        console.error(error);
+        res
+          .status(500)
+          .send({ success: false, message: "Failed to fetch latest books" });
+      }
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
