@@ -107,8 +107,10 @@ async function run() {
       } catch (error) {
         console.error(error);
         res
-          .status(500)
-          .send({ success: false, message: "Failed to fetch latest books" });
+          .send({ 
+            success: false
+
+          });
       }
     });
 
