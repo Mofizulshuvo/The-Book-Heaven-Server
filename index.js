@@ -101,10 +101,7 @@ async function run() {
     
     app.get("/Book-data/latest", async (req, res) => {
       try {
-        const latestBooks = await BookCollection.find()
-          .sort({ _id: -1 }) // _id in descending order => latest first
-          .limit(6) // only 6 documents
-          .toArray();
+        const latestBooks = await BookCollection.find().sort({ _id: -1 }).limit(6) .toArray();
 
         res.send(latestBooks);
       } catch (error) {
