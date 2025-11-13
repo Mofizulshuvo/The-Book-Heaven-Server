@@ -4,7 +4,7 @@ const app = express();
 const PORT = 5000;
 app.use(
   cors({
-    // origin:
+    origin:"*"
   })
 );
 app.use(express.json());
@@ -47,10 +47,10 @@ async function run() {
     });
 
     app.get("/my-books/:email", async (req, res) => {
-      const email = req.params.email; // get email from URL
+      const email = req.params.email;
       try {
         const books = await BookCollection.find({ userEmail: email }).toArray();
-        res.send(books); // send filtered books
+        res.send(books);
       } catch (error) {
         console.error(error);
         res.status(500).send({
@@ -62,6 +62,8 @@ async function run() {
 
     app.put("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
+      if (!ObjectId.isValid(id)) return res.status(400).send({ success: false, message: "Invalid book ID" });
+
       const updateData = req.body;
       const result = await BookCollection.updateOne(
         { _id: new ObjectId(id) },
@@ -72,12 +74,15 @@ async function run() {
 
     app.get("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
+      if (!ObjectId.isValid(id)) return res.status(400).send({ success: false, message: "Invalid book ID" });
+
       const result = await BookCollection.findOne({ _id: new ObjectId(id) });
       res.send(result);
     });
 
     app.delete("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
+      if (!ObjectId.isValid(id)) return res.status(400).send({ success: false, message: "Invalid book ID" });
 
       try {
         const result = await BookCollection.deleteOne({
@@ -86,31 +91,26 @@ async function run() {
 
         if (result.deletedCount > 0) {
           res.send({ success: true, message: "Book deleted successfully" });
+        } else {
+          res.send({ success: false, message: "Book not found" });
         }
       } catch (error) {
         console.error(error);
-        res.send({
-          success: false,
-        });
+        res.send({ success: false });
       }
     });
 
-
-
-
-    
     app.get("/Book-data/latest", async (req, res) => {
       try {
-        const latestBooks = await BookCollection.find().sort({ _id: -1 }).limit(6) .toArray();
+        const latestBooks = await BookCollection.find()
+          .sort({ _id: -1 })
+          .limit(6)
+          .toArray();
 
         res.send(latestBooks);
       } catch (error) {
         console.error(error);
-        res
-          .send({ 
-            success: false
-
-          });
+        res.send({ success: false });
       }
     });
 
@@ -122,6 +122,7 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
 app.get("/", (req, res) => {
   res.send(`Hi from server at Port : ${PORT}`);
 });
