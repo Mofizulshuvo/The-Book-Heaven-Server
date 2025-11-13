@@ -76,6 +76,36 @@ async function run() {
 
 
 
+   
+app.get("/Book-data/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await BookCollection.findOne({ _id: new ObjectId(id) });
+  res.send(result);
+});
+
+
+app.delete("/Book-data/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const result = await BookCollection.deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount > 0) {
+      res.send({ success: true, message: "Book deleted successfully" });
+    } 
+  } catch (error) {
+    console.error(error);
+    res.send({
+      success: false,
+    });
+  }
+});
+
+
+
+
+
+
 
 
     await client.db("admin").command({ ping: 1 });
