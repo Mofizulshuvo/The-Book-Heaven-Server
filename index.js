@@ -1,13 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.use(cors({}));
 app.use(express.json());
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
-  "mongodb+srv://Mofizul-The-Book-Heaven:9CJYg47RKm9SIRxT@cluster0.h2qhrdv.mongodb.net/?appName=Cluster0";
+  `mongodb+srv://${process.env.DB_UserName}:${process.env.DB_Password}@cluster0.h2qhrdv.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -19,19 +22,19 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const DB = client.db("The-Book-Heaven-DB");
     const BookCollection = DB.collection("Book_data");
     const UserReviewCollection = DB.collection("User_Review");
 
-    //sokol boi er api
+   
     app.get("/Book-data", async (req, res) => {
       const result = await BookCollection.find().toArray();
       res.send(result);
     });
 
-    //insert er Api
+    
     app.post("/Book-data", async (req, res) => {
       const data = req.body;
       console.log(data);
@@ -72,7 +75,7 @@ async function run() {
     });
 
     
-    //api of a single book detsils
+  
     app.get("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id))
@@ -82,7 +85,7 @@ async function run() {
       res.send(result);
     });
 
-    // api for delete a book
+    
     app.delete("/Book-data/:id", async (req, res) => {
       const id = req.params.id;
       if (!ObjectId.isValid(id))
@@ -106,7 +109,7 @@ async function run() {
       }
     });
 
-    // Latest book API
+   
     app.get("/Book-latest", async (req, res) => {
       try {
         const latestBooks = await BookCollection.find()
@@ -157,7 +160,7 @@ async function run() {
       }
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
